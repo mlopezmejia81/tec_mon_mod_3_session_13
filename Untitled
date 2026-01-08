@@ -1,0 +1,38 @@
+# Variables de Entorno y Credenciales
+# Copia este archivo a .env y completa con tus valores reales
+# cp env.example .env
+
+# Entorno de ejecución (development, testing, production)
+ENV_FOR_DYNACONF=development
+
+# Configuración de la aplicación
+SECRET_KEY=your-secret-key-change-in-production
+DEBUG=true
+
+# Credenciales de API (si aplica)
+API_KEY=your-api-key-here
+API_SECRET=your-api-secret-here
+
+# Configuración de base de datos (si aplica)
+DATABASE_URL=sqlite:///./iris_ml.db
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=your-database-password
+DB_NAME=iris_ml
+
+# Configuración de logging
+LOG_LEVEL=DEBUG
+
+# Rutas de archivos (opcional, también en config.yml)
+DATA_PATH=Iris.csv
+MODEL_PATH=models/iris_model.pkl
+
+# Configuración del modelo
+TEST_SIZE=0.2
+RANDOM_STATE=42
+
+# Configuración de API (si aplica)
+API_HOST=0.0.0.0
+API_PORT=8000
+ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8000

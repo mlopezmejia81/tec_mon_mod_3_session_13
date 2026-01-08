@@ -1,0 +1,127 @@
+# Configuración del Proyecto Iris ML Pipeline
+# Este archivo contiene la configuración por entornos
+
+default: &default
+  # Configuración de la aplicación
+  app_name: "Iris ML Pipeline"
+  version: "0.1.0"
+  description: "Proyecto completo de ML pipeline para clasificación de Iris"
+  
+  # Configuración de debugging
+  debug: false
+  log_level: "INFO"
+  
+  # Rutas de archivos
+  data_path: "Iris.csv"
+  model_path: "models/iris_model.pkl"
+  
+  # Configuración del modelo
+  test_size: 0.2
+  random_state: 42
+  
+  # Configuración del modelo ML
+  ml:
+    n_estimators: 100
+    max_depth: null
+    min_samples_split: 2
+    min_samples_leaf: 1
+  
+  # Configuración de la API
+  api:
+    host: "0.0.0.0"
+    port: 8000
+    reload: false
+    workers: 1
+    log_level: "info"
+  
+  # Configuración de CORS
+  cors:
+    allow_origins:
+      - "*"
+    allow_credentials: true
+    allow_methods:
+      - "*"
+    allow_headers:
+      - "*"
+
+development:
+  # Configuración de la aplicación
+  app_name: "Iris ML Pipeline"
+  version: "0.1.0"
+  description: "Proyecto completo de ML pipeline para clasificación de Iris"
+  debug: true
+  log_level: "DEBUG"
+  data_path: "Iris.csv"
+  model_path: "models/iris_model.pkl"
+  test_size: 0.2
+  random_state: 42
+  ml:
+    n_estimators: 50  # Menos árboles para desarrollo rápido
+    max_depth: null
+    min_samples_split: 2
+    min_samples_leaf: 1
+  api:
+    host: "0.0.0.0"
+    port: 8000
+    reload: true  # Auto-reload en desarrollo
+    workers: 1
+    log_level: "debug"
+  cors:
+    allow_origins: ["*"]
+    allow_credentials: true
+    allow_methods: ["*"]
+    allow_headers: ["*"]
+
+testing:
+  app_name: "Iris ML Pipeline"
+  version: "0.1.0"
+  description: "Proyecto completo de ML pipeline para clasificación de Iris"
+  debug: true
+  log_level: "DEBUG"
+  data_path: "Iris.csv"
+  model_path: "models/iris_model.pkl"
+  test_size: 0.3  # Más datos para testing
+  random_state: 42
+  ml:
+    n_estimators: 10  # Muy pocos árboles para tests rápidos
+    max_depth: null
+    min_samples_split: 2
+    min_samples_leaf: 1
+  api:
+    host: "0.0.0.0"
+    port: 8001  # Puerto diferente para tests
+    reload: false
+    workers: 1
+    log_level: "debug"
+  cors:
+    allow_origins: ["*"]
+    allow_credentials: true
+    allow_methods: ["*"]
+    allow_headers: ["*"]
+
+production:
+  app_name: "Iris ML Pipeline"
+  version: "0.1.0"
+  description: "Proyecto completo de ML pipeline para clasificación de Iris"
+  debug: false
+  log_level: "WARNING"
+  data_path: "Iris.csv"
+  model_path: "models/iris_model.pkl"
+  test_size: 0.2
+  random_state: 42
+  ml:
+    n_estimators: 200  # Más árboles para mejor precisión
+    max_depth: null
+    min_samples_split: 2
+    min_samples_leaf: 1
+  api:
+    host: "0.0.0.0"
+    port: 8000
+    reload: false
+    workers: 4  # Múltiples workers en producción
+    log_level: "warning"
+  cors:
+    allow_origins: ["*"]
+    allow_credentials: true
+    allow_methods: ["*"]
+    allow_headers: ["*"]
