@@ -3,6 +3,7 @@
 import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import List, Optional
 
 import pandas as pd
 from fastapi import FastAPI, HTTPException
@@ -14,7 +15,7 @@ from iris_ml.config import settings
 from iris_ml.models import IrisPipeline
 
 # Variable global para el modelo
-_model: IrisPipeline | None = None
+_model: Optional[IrisPipeline] = None
 
 
 def load_model() -> IrisPipeline:
@@ -150,7 +151,7 @@ async def predict(request: PredictionRequest) -> PredictionResponse:
 
 
 @app.post("/predict/batch", tags=["Predictions"])
-async def predict_batch(requests: list[PredictionRequest]) -> list[PredictionResponse]:
+async def predict_batch(requests: List[PredictionRequest]) -> List[PredictionResponse]:
     """Realiza predicciones en lote.
 
     Args:
@@ -196,7 +197,7 @@ async def predict_batch(requests: list[PredictionRequest]) -> list[PredictionRes
         raise HTTPException(status_code=500, detail=f"Error durante la predicción: {str(e)}")
 
 
-def run_server(host: str | None = None, port: int | None = None, reload: bool | None = None) -> None:
+def run_server(host: Optional[str] = None, port: Optional[int] = None, reload: Optional[bool] = None) -> None:
     """Ejecuta el servidor de desarrollo.
 
     Args:

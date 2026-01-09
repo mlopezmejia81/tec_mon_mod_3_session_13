@@ -1,7 +1,7 @@
 """Utilidades para cargar y procesar datos."""
 
 from pathlib import Path
-from typing import Tuple
+from typing import List, Optional, Tuple
 
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -11,7 +11,7 @@ from iris_ml.config.settings import get_data_path
 from iris_ml.utils.column_cleaner import clean_column_names
 
 
-def load_iris_data(data_path: Path | None = None) -> pd.DataFrame:
+def load_iris_data(data_path: Optional[Path] = None) -> pd.DataFrame:
     """Carga el dataset de Iris desde un archivo CSV.
 
     Args:
@@ -39,7 +39,7 @@ def load_iris_data(data_path: Path | None = None) -> pd.DataFrame:
 
 
 def prepare_data(
-    test_size: float | None = None, random_state: int | None = None
+    test_size: Optional[float] = None, random_state: Optional[int] = None
 ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
     """Prepara los datos para entrenamiento y prueba.
 
@@ -58,7 +58,7 @@ def prepare_data(
     df: pd.DataFrame = load_iris_data()
 
     # Seleccionar características y etiqueta
-    feature_columns: list[str] = [
+    feature_columns: List[str] = [
         "sepal_length_cm",
         "sepal_width_cm",
         "petal_length_cm",

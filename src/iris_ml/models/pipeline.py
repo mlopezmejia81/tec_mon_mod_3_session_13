@@ -2,7 +2,7 @@
 
 import pickle
 from pathlib import Path
-from typing import Any, List
+from typing import Any, List, Optional
 
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
@@ -25,7 +25,7 @@ class IrisPipeline:
         species_encoder: Codificador de especies.
     """
 
-    def __init__(self, n_estimators: int | None = None, random_state: int | None = None) -> None:
+    def __init__(self, n_estimators: Optional[int] = None, random_state: Optional[int] = None) -> None:
         """Inicializa el pipeline de Iris.
 
         Args:
@@ -120,7 +120,7 @@ class IrisPipeline:
         y_encoded = self.species_encoder.transform(y)
         return self.pipeline.score(X, y_encoded)
 
-    def save(self, filepath: Path | None = None) -> None:
+    def save(self, filepath: Optional[Path] = None) -> None:
         """Guarda el modelo entrenado en un archivo.
 
         Args:
@@ -141,7 +141,7 @@ class IrisPipeline:
             )
 
     @classmethod
-    def load(cls, filepath: Path | None = None) -> "IrisPipeline":
+    def load(cls, filepath: Optional[Path] = None) -> "IrisPipeline":
         """Carga un modelo entrenado desde un archivo.
 
         Args:

@@ -1,6 +1,6 @@
 """Esquemas Pydantic para la API."""
 
-from typing import Literal
+from typing import List, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -78,7 +78,7 @@ class PredictionResponse(BaseModel):
     """
 
     predicted_species: Literal["Iris-setosa", "Iris-versicolor", "Iris-virginica"]
-    probabilities: list[ProbabilityPrediction]
+    probabilities: List[ProbabilityPrediction]
 
 
 class HealthResponse(BaseModel):
