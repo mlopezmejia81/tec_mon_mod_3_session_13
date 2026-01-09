@@ -161,28 +161,40 @@ poetry install
 
 #### Paso 3: Activar el entorno virtual del proyecto
 
+**Opción 1: Usar `poetry env activate` (recomendado por Poetry)**
 ```bash
-# Opción 1: Activar manualmente (más común)
-# Si Poetry creó el venv en el proyecto:
-source .venv/bin/activate  # En macOS/Linux
-# .venv\Scripts\activate   # En Windows
-
-# O si Poetry lo creó en otro lugar (ubicación por defecto):
-source $(poetry env info --path)/bin/activate  # En macOS/Linux
-
-# Opción 2: Usar 'poetry run' sin activar (más moderno)
-poetry run pytest
-poetry run iris-train
-
-# Opción 3: Instalar el plugin shell para usar 'poetry shell'
-poetry self add poetry-plugin-shell
-poetry shell
+poetry env activate
 ```
 
-**Resumen importante**:
-- Poetry debe estar instalado **globalmente** (fuera de venvs) para uso normal
-- El venv donde instalaste Poetry es **temporal** y solo sirve para tener Poetry disponible
-- Poetry crea su **propio entorno virtual** para cada proyecto (separado del venv temporal)
+**Opción 2: Activar manualmente**
+```bash
+source .venv/bin/activate
+# o
+source $(poetry env info --path)/bin/activate
+deactivate
+```
+
+**Opción 3: Usar `poetry shell`**
+```bash
+poetry self add poetry-plugin-shell
+poetry shell
+exit
+```
+
+**Opción 4: Usar `poetry run` (sin activar)**
+```bash
+poetry run pytest
+poetry run iris-train
+poetry run iris-api
+```
+
+**📝 Resumen importante**:
+
+- ✅ Poetry debe estar instalado **globalmente** (fuera de venvs) para uso normal
+- ✅ El venv donde instalaste Poetry (si usaste uno) es **temporal** y solo sirve para tener Poetry disponible
+- ✅ Poetry crea su **propio entorno virtual** para cada proyecto cuando ejecutas `poetry install` (separado del venv temporal)
+- ✅ Para activar el entorno virtual del proyecto, usa una de las 3 opciones mostradas arriba
+- ✅ **Importante**: El comando `poetry env activate` **NO EXISTE** (es un error común de documentación)
 
 ### Instalación alternativa (pip)
 
@@ -203,160 +215,7 @@ pip install -r requirements-dev.txt
 pip install -e .
 ```
 
-### Instalar el paquete distribuible (desde archivos generados)
-
-Si has construido el paquete con `poetry build`, puedes instalar los archivos generados en la carpeta `dist/`:
-
-#### Construir el paquete
-
-```bash
-# Construir el paquete (genera archivos .whl y .tar.gz en dist/)
-poetry build
-```
-
-Esto crea dos archivos en la carpeta `dist/`:
-- `iris_ml_pipeline-0.1.0-py3-none-any.whl` (wheel - recomendado)
-- `iris-ml-pipeline-0.1.0.tar.gz` (source distribution)
-
-#### Instalar desde el archivo .whl (recomendado)
-
-```bash
-# Con pip estándar
-pip install dist/iris_ml_pipeline-0.1.0-py3-none-any.whl
-
-# O si estás usando Poetry
-poetry run pip install dist/iris_ml_pipeline-0.1.0-py3-none-any.whl
-```
-
-#### Instalar desde el archivo .tar.gz
-
-```bash
-pip install dist/iris-ml-pipeline-0.1.0.tar.gz
-```
-
-#### Instalar desde la carpeta dist/ completa
-
-```bash
-pip install dist/
-```
-
-#### Verificar la instalación
-
-```bash
-# Ver información del paquete instalado
-pip show iris-ml-pipeline
-
-# Verificar que los comandos funcionan
-iris-train --help
-iris-predict --help
-iris-api --help
-```
-
-#### Desinstalar
-
-```bash
-pip uninstall iris-ml-pipeline
-```
-
 > **Nota**: Si tienes problemas con la instalación de Poetry debido a certificados SSL, consulta [INSTALL.md](INSTALL.md) para métodos alternativos.
-
-### 🔧 Solución de Problemas Comunes
-
-#### Error: `[SSL: CERTIFICATE_VERIFY_FAILED]` al instalar Poetry
-
-**Problema**: Los certificados SSL de Python no están configurados correctamente en macOS.
-
-**Solución rápida** (recomendada):
-```bash
-# Instalar Poetry con pip directamente (evita el problema de SSL):
-python3 -m pip install --user poetry
-
-# Agregar al PATH (ajusta la versión de Python si es diferente):
-export PATH="$HOME/Library/Python/3.13/bin:$PATH"
-echo 'export PATH="$HOME/Library/Python/3.13/bin:$PATH"' >> ~/.zshrc
-source ~/.zshrc
-
-# Verificar:
-poetry --version
-```
-
-**Solución alternativa** (si quieres arreglar los certificados SSL):
-```bash
-# Instalar/actualizar certificados de Python en macOS
-# Ejecuta el script de instalación de certificados (ajusta la ruta según tu versión):
-/Applications/Python\ 3.13/Install\ Certificates.command
-
-# O descarga e instala Python desde python.org para obtener certificados actualizados
-# Luego intenta de nuevo:
-curl -sSL https://install.python-poetry.org | python3 -
-```
-
-#### Error: `command not found: poetry`
-
-**Problema**: Poetry no está disponible en tu PATH.
-
-**Solución**:
-
-1. **Si instalaste Poetry con el script oficial**:
-   ```bash
-   # Verifica dónde se instaló Poetry
-   ls -la ~/.local/bin/poetry
-   # o
-   ls -la ~/Library/Python/*/bin/poetry
-   
-   # Agrega al PATH (agrega esta línea a ~/.zshrc o ~/.bashrc):
-   export PATH="$HOME/.local/bin:$PATH"
-   # O para macOS si está en otro lugar:
-   export PATH="$HOME/Library/Python/3.x/bin:$PATH"
-   
-   # Recarga tu shell
-   source ~/.zshrc  # o source ~/.bashrc
-   ```
-
-2. **Si instalaste Poetry dentro de un venv (temporal)**:
-   ```bash
-   # El venv donde instalaste Poetry es solo temporal
-   # Para usar Poetry mientras tanto:
-   source venv/bin/activate  # Activa el venv donde está Poetry
-   poetry install  # Poetry creará su PROPIO entorno virtual para el proyecto
-   
-   # Una vez que Poetry esté instalado globalmente, puedes:
-   # 1. Desactivar el venv temporal: deactivate
-   # 2. Eliminarlo: rm -rf venv
-   # 3. Usar Poetry normalmente desde cualquier lugar
-   ```
-
-3. **Reinstalar Poetry correctamente (recomendado)**:
-   ```bash
-   # Opción A: Usar pip directamente (RECOMENDADO si tienes problemas de SSL)
-   python3 -m pip install --user poetry
-   # Agrega al PATH (ajusta la versión de Python si es diferente):
-   export PATH="$HOME/Library/Python/3.13/bin:$PATH"
-   echo 'export PATH="$HOME/Library/Python/3.13/bin:$PATH"' >> ~/.zshrc
-   source ~/.zshrc
-   poetry --version
-   
-   # Opción B: Usar el script oficial (solo si NO tienes problemas de SSL)
-   curl -sSL https://install.python-poetry.org | python3 -
-   echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
-   source ~/.zshrc
-   
-   # Opción C: Usar pipx (si pipx está disponible y SSL funciona)
-   python3 -m pip install --user pipx
-   python3 -m pipx ensurepath
-   pipx install poetry
-   ```
-
-#### ¿Por qué necesito activar un venv para usar Poetry si Poetry crea su propio venv?
-
-**Explicación**:
-- Si instalaste Poetry **dentro de un venv**, ese venv es solo un contenedor temporal para tener Poetry disponible
-- Cuando ejecutas `poetry install`, Poetry crea su **propio entorno virtual separado** para el proyecto
-- **Dos opciones**:
-  1. **Temporal**: Mantener el venv donde está Poetry activo solo para ejecutar comandos Poetry, pero trabajar en el venv del proyecto que Poetry creó
-  2. **Permanente**: Instalar Poetry globalmente para no necesitar ningún venv temporal
-
-**Recomendación**: Instala Poetry globalmente para evitar confusión.
 
 ## 📊 Dataset
 
@@ -705,3 +564,133 @@ Este proyecto está bajo la Licencia MIT - ver el archivo LICENSE para detalles.
 - FastAPI por el framework de API
 - Poetry por la gestión de dependencias
 - Y todos los demás proyectos open source que hacen esto posible
+
+---
+
+## 📦 Instalación Adicional: Paquete Distribuible
+
+### Instalar el paquete distribuible (desde archivos generados)
+
+Si has construido el paquete con `poetry build`, puedes instalar los archivos generados en la carpeta `dist/`:
+
+#### Construir el paquete
+
+```bash
+poetry build
+```
+
+Esto crea dos archivos en la carpeta `dist/`:
+- `iris_ml_pipeline-0.1.0-py3-none-any.whl` (wheel - recomendado)
+- `iris-ml-pipeline-0.1.0.tar.gz` (source distribution)
+
+#### Instalar desde el archivo .whl (recomendado)
+
+```bash
+pip install dist/iris_ml_pipeline-0.1.0-py3-none-any.whl
+# o con Poetry
+poetry run pip install dist/iris_ml_pipeline-0.1.0-py3-none-any.whl
+```
+
+#### Instalar desde el archivo .tar.gz
+
+```bash
+pip install dist/iris-ml-pipeline-0.1.0.tar.gz
+```
+
+#### Instalar desde la carpeta dist/ completa
+
+```bash
+pip install dist/
+```
+
+#### Verificar la instalación
+
+```bash
+pip show iris-ml-pipeline
+iris-train --help
+iris-predict --help
+iris-api --help
+```
+
+#### Desinstalar
+
+```bash
+pip uninstall iris-ml-pipeline
+```
+
+---
+
+## 🔧 Solución de Problemas Comunes
+
+### Error: `[SSL: CERTIFICATE_VERIFY_FAILED]` al instalar Poetry
+
+**Problema**: Los certificados SSL de Python no están configurados correctamente en macOS.
+
+**Solución rápida**:
+```bash
+python3 -m pip install --user poetry
+export PATH="$HOME/Library/Python/3.13/bin:$PATH"
+echo 'export PATH="$HOME/Library/Python/3.13/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+poetry --version
+```
+
+**Solución alternativa**:
+```bash
+/Applications/Python\ 3.13/Install\ Certificates.command
+curl -sSL https://install.python-poetry.org | python3 -
+```
+
+### Error: `command not found: poetry`
+
+**Problema**: Poetry no está disponible en tu PATH.
+
+**Solución**:
+
+1. **Si instalaste Poetry con el script oficial**:
+   ```bash
+   ls -la ~/.local/bin/poetry
+   # o
+   ls -la ~/Library/Python/*/bin/poetry
+   export PATH="$HOME/.local/bin:$PATH"
+   # o para macOS
+   export PATH="$HOME/Library/Python/3.x/bin:$PATH"
+   source ~/.zshrc
+   ```
+
+2. **Si instalaste Poetry dentro de un venv (temporal)**:
+   ```bash
+   source venv/bin/activate
+   poetry install
+   # Una vez instalado globalmente:
+   deactivate
+   rm -rf venv
+   ```
+
+3. **Reinstalar Poetry correctamente**:
+   ```bash
+   # Opción A: Con pip (recomendado si hay problemas de SSL)
+   python3 -m pip install --user poetry
+   export PATH="$HOME/Library/Python/3.13/bin:$PATH"
+   echo 'export PATH="$HOME/Library/Python/3.13/bin:$PATH"' >> ~/.zshrc
+   source ~/.zshrc
+   
+   # Opción B: Script oficial (si no hay problemas de SSL)
+   curl -sSL https://install.python-poetry.org | python3 -
+   echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+   source ~/.zshrc
+   
+   # Opción C: Con pipx
+   python3 -m pip install --user pipx
+   python3 -m pipx ensurepath
+   pipx install poetry
+   ```
+
+### ¿Por qué necesito activar un venv para usar Poetry si Poetry crea su propio venv?
+
+**Explicación**:
+- Si instalaste Poetry dentro de un venv, ese venv es solo temporal para tener Poetry disponible
+- Cuando ejecutas `poetry install`, Poetry crea su propio entorno virtual separado para el proyecto
+- **Opciones**:
+  1. **Temporal**: Mantener el venv donde está Poetry activo solo para comandos Poetry
+  2. **Permanente**: Instalar Poetry globalmente (recomendado)
