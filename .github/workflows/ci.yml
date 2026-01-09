@@ -1,5 +1,8 @@
 name: CI/CD Pipeline
 
+# Este workflow se ejecuta automáticamente cuando:
+# - Se hace push a las ramas main o dev
+# - Se crea un Pull Request hacia main o dev
 on:
   push:
     branches: [ main, dev]
@@ -7,18 +10,23 @@ on:
     branches: [ main, dev ]
 
 jobs:
+  # JOB 1: LINTING Y CALIDAD DE CÓDIGO
+  # Verifica que el código siga los estándares de estilo (PEP 8) y buenas prácticas
   lint:
     name: Linting and Code Quality
     runs-on: ubuntu-latest
     steps:
+      # Descargar el código del repositorio
       - uses: actions/checkout@v4
       
+      # Configurar Python 3.11 en el runner
       - name: Set up Python
         id: setup-python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       
+      # Instalar Poetry (gestor de dependencias)
       - name: Install Poetry
         uses: snok/install-poetry@v1
         with:
@@ -26,47 +34,47 @@ jobs:
           virtualenvs-create: true
           virtualenvs-in-project: true
       
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v4
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-      
-      - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root
-      
-      - name: Install project
+      # Instalar dependencias y el proyecto en el entorno virtual
+      - name: Install dependencies and project
         run: poetry install --no-interaction
       
+      # Verificar estilo de código según PEP 8 (longitud de líneas, espacios, etc.)
+      # continue-on-error: true permite que el job continúe aunque haya errores
       - name: Run pycodestyle
         run: poetry run pycodestyle src/ tests/ || true
         continue-on-error: true
       
+      # Verificar que los docstrings sigan el estilo Google
       - name: Run pydocstyle
         run: poetry run pydocstyle src/ || true
         continue-on-error: true
       
+      # Verificar formato de código con Black (sin aplicar cambios, solo verificar)
       - name: Run black check
         run: poetry run black --check src/ tests/ || true
         continue-on-error: true
       
+      # Verificación de tipos estáticos (opcional, puede tener errores)
       - name: Run mypy (optional)
         run: poetry run mypy src/ || true
         continue-on-error: true
 
+  # JOB 2: PRUEBAS AUTOMATIZADAS
+  # Ejecuta todos los tests (unitarios, integración y funcionales) y genera reporte de cobertura
   test:
     name: Tests
     runs-on: ubuntu-latest
     steps:
+      # Descargar el código del repositorio
       - uses: actions/checkout@v4
       
+      # Configurar Python 3.11
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       
+      # Instalar Poetry
       - name: Install Poetry
         uses: snok/install-poetry@v1
         with:
@@ -74,32 +82,39 @@ jobs:
           virtualenvs-create: true
           virtualenvs-in-project: true
       
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v4
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-3.11-${{ hashFiles('**/poetry.lock') }}
-      
-      - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root
-      
-      - name: Install project
+      # Instalar dependencias y el proyecto
+      - name: Install dependencies and project
         run: poetry install --no-interaction
       
+      # Ejecutar pruebas unitarias (prueban funciones/métodos individuales)
       - name: Run unit tests
         run: poetry run pytest tests/unit/ -v
       
+      # Ejecutar pruebas de integración (prueban la interacción entre componentes)
       - name: Run integration tests
         run: poetry run pytest tests/integration/ -v
       
+      # Ejecutar pruebas funcionales (prueban la API REST completa)
       - name: Run functional tests
         run: poetry run pytest tests/functional/ -v
       
+      # Generar reporte de cobertura de código (qué porcentaje del código está cubierto por tests)
+      # Genera reportes en formato XML (para CI) y HTML (para visualización)
+      # El reporte HTML se puede ver localmente en htmlcov/index.html o descargarlo desde GitHub Actions
       - name: Generate coverage report
         run: poetry run pytest --cov=src/iris_ml --cov-report=xml --cov-report=html
       
+      # Subir reporte HTML de cobertura como artifact (se puede descargar desde la interfaz de GitHub Actions)
+      # Para verlo: ve a la ejecución del workflow → Artifacts → descarga "coverage-html"
+      - name: Upload coverage HTML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html
+          path: htmlcov/
+          retention-days: 30
+      
+      # Subir reporte de cobertura a Codecov (servicio externo para tracking de cobertura)
+      # continue-on-error: true porque es opcional y no debe bloquear el CI
       - name: Upload coverage to Codecov (optional)
         uses: codecov/codecov-action@v4
         with:
@@ -108,26 +123,36 @@ jobs:
           name: codecov-umbrella
         continue-on-error: true
 
+  # JOB 3: CONSTRUCCIÓN DEL PAQUETE
+  # Crea el paquete distribuible (wheel y sdist) solo si lint y test pasan exitosamente
+  # needs: [lint, test] significa que este job solo se ejecuta después de que los otros dos terminen correctamente
   build:
     name: Build Package
     runs-on: ubuntu-latest
     needs: [lint, test]
     steps:
+      # Descargar el código del repositorio
       - uses: actions/checkout@v4
       
+      # Configurar Python 3.11
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       
+      # Instalar Poetry (solo para construir, no necesitamos el entorno virtual completo)
       - name: Install Poetry
         uses: snok/install-poetry@v1
         with:
           version: latest
       
+      # Construir el paquete Python (genera archivos .whl y .tar.gz en la carpeta dist/)
+      # Esto crea los archivos que se pueden distribuir e instalar con pip
       - name: Build package
         run: poetry build
       
+      # Subir los archivos construidos como artefactos de GitHub Actions
+      # Estos artefactos se pueden descargar desde la interfaz de GitHub después del workflow
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
