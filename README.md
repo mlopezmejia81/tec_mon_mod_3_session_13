@@ -7,22 +7,70 @@ Proyecto completo de Machine Learning para clasificación de especies de Iris im
 Este proyecto incluye:
 
 - **PEP 8 y pycodestyle**: Código siguiendo estándares de Python
+  - Verificado en: Todos los archivos `.py` en `src/` y `tests/`
+  - Configuración: `pyproject.toml` (sección `[tool.pycodestyle]`)
+  - Verificación automática: `.github/workflows/ci.yml` (job `lint`)
+
 - **Python Annotations**: Type hints completos en todo el código
+  - Implementado en: Todos los archivos `.py` del proyecto
+  - Ejemplos destacados: `src/iris_ml/models/pipeline.py`, `src/iris_ml/api/main.py`, `src/iris_ml/utils/data_loader.py`
+
 - **Docstrings**: Documentación completa usando Google style
+  - Implementado en: Todos los módulos y funciones del proyecto
+  - Verificado con: `pydocstyle` (configurado en `pyproject.toml`)
+  - Ejemplos: `src/iris_ml/models/pipeline.py`, `src/iris_ml/api/schemas.py`
+
 - **PEP 621**: Metadatos del proyecto en `pyproject.toml`
+  - Archivo: `pyproject.toml` (sección `[tool.poetry]`)
+  - Incluye: nombre, versión, descripción, autores, dependencias
+
 - **Poetry**: Gestión de dependencias moderna
+  - Archivos: `pyproject.toml`, `poetry.lock`
+  - Scripts definidos: `pyproject.toml` (sección `[tool.poetry.scripts]`)
+  - Comandos: `iris-train`, `iris-predict`, `iris-api`
+
 - **Dynaconf**: Configuración por entornos
+  - Archivos de configuración: `config.yml`, `.env`, `settings.toml`
+  - Implementación: `src/iris_ml/config/settings.py`
+  - Ejemplo de uso: `src/iris_ml/models/pipeline.py`, `src/iris_ml/api/main.py`
+
 - **Pruebas completas**:
-  - Pruebas unitarias
-  - Pruebas de integración
-  - Pruebas funcionales
+  - Pruebas unitarias: `tests/unit/` (ej: `test_pipeline.py`, `test_transformers.py`, `test_data_loader.py`)
+  - Pruebas de integración: `tests/integration/` (ej: `test_training_pipeline.py`)
+  - Pruebas funcionales: `tests/functional/` (ej: `test_api.py`)
+  - Fixtures compartidas: `tests/conftest.py`
+
 - **Pytest**: Framework de testing con cobertura
+  - Configuración: `pyproject.toml` (sección `[tool.pytest.ini_options]`)
+  - Reportes: Generados en `htmlcov/` después de ejecutar tests con `--cov`
+  - CI/CD: `.github/workflows/ci.yml` (job `test`)
+
 - **GitHub Actions**: CI/CD automatizado
+  - Archivo: `.github/workflows/ci.yml`
+  - Jobs: `lint` (calidad de código), `test` (pruebas), `build` (construcción del paquete)
+
 - **Refactorización y buenas prácticas**: Código limpio y mantenible
+  - Implementado en: Todo el código del proyecto
+  - Ejemplos: `src/iris_ml/utils/column_cleaner.py` (función genérica para limpieza de columnas)
+
 - **POO**: Programación orientada a objetos
+  - Clases principales: `src/iris_ml/models/pipeline.py` (`IrisPipeline`)
+  - Transformers personalizados: `src/iris_ml/preprocessing/transformers.py` (`ColumnSelector`, `SpeciesEncoder`)
+
 - **REST API**: API REST con FastAPI
+  - Archivo principal: `src/iris_ml/api/main.py`
+  - Endpoints: `/`, `/health`, `/predict`, `/predict/batch`
+  - Documentación automática: Swagger UI (`/docs`) y ReDoc (`/redoc`)
+
 - **Pydantic**: Validación de datos
+  - Archivo: `src/iris_ml/api/schemas.py`
+  - Modelos: `IrisFeatures`, `PredictionRequest`, `PredictionResponse`, `HealthResponse`
+
 - **Pipelines scikit-learn**: `BaseEstimator` y `TransformerMixin`
+  - Transformers personalizados: `src/iris_ml/preprocessing/transformers.py`
+    - `ColumnSelector`: Hereda de `BaseEstimator` y `TransformerMixin`
+    - `SpeciesEncoder`: Hereda de `BaseEstimator` y `TransformerMixin`
+  - Pipeline completo: `src/iris_ml/models/pipeline.py` (`IrisPipeline`)
 
 ## 🚀 Instalación
 
@@ -33,26 +81,81 @@ Este proyecto incluye:
 
 ### Instalación con Poetry (Recomendado)
 
+#### Paso 1: Instalar Poetry
+
+**⚠️ Importante**: Poetry debe instalarse **fuera** de un entorno virtual para que esté disponible globalmente.
+
 ```bash
-# Instalar Poetry si no lo tienes
-# Si tienes problemas con SSL, usa: pip install poetry
+# Opción 1: Instalación oficial (recomendado)
+# Esto instala Poetry en ~/.local/bin (Linux/macOS) o %APPDATA%\Python\Scripts (Windows)
 curl -sSL https://install.python-poetry.org | python3 -
 
+# Después de instalar, agrega Poetry al PATH (macOS/Linux)
+# Agrega esta línea a tu ~/.zshrc o ~/.bashrc:
+export PATH="$HOME/.local/bin:$PATH"
+
+# O en macOS, si Poetry se instaló en otro lugar:
+export PATH="$HOME/Library/Python/3.x/bin:$PATH"
+
+# Luego recarga tu shell:
+source ~/.zshrc  # o source ~/.bashrc
+
+# Opción 2: Usar pipx (si lo tienes instalado - recomendado)
+pipx install poetry
+
+# Opción 3: Si tienes problemas con SSL, instalar con pip (NO dentro de un venv)
+# Solo si las opciones anteriores no funcionan:
+# Si 'pip' no está disponible, usa 'python3 -m pip':
+python3 -m pip install --user poetry
+
+# Después de instalar con --user, agrega al PATH:
+# macOS/Linux: export PATH="$HOME/Library/Python/3.x/bin:$PATH" (agrega a ~/.zshrc)
+# Luego: source ~/.zshrc
+```
+
+**Si ya instalaste Poetry dentro de un venv** (temporal para instalarlo):
+```bash
+# El venv donde instalaste Poetry es solo temporal
+# Una vez que Poetry esté instalado globalmente, puedes eliminarlo
+# Para usar Poetry mientras tanto:
+source venv/bin/activate  # Activa el venv donde está Poetry
+poetry install  # Poetry creará su PROPIO entorno virtual para el proyecto
+```
+
+#### Paso 2: Instalar dependencias del proyecto
+
+```bash
 # Instalar dependencias (esto crea el entorno virtual automáticamente)
 poetry install
 
-# Activar el entorno virtual (Poetry 2.0+)
-# Opción 1: Usar poetry env activate (recomendado)
-poetry env activate
+# Poetry creará un entorno virtual SEPARADO para este proyecto
+# No necesitas activar el venv temporal donde instalaste Poetry
+```
 
-# Opción 2: Activar manualmente
+#### Paso 3: Activar el entorno virtual del proyecto
+
+```bash
+# Opción 1: Activar manualmente (más común)
+# Si Poetry creó el venv en el proyecto:
 source .venv/bin/activate  # En macOS/Linux
 # .venv\Scripts\activate   # En Windows
 
+# O si Poetry lo creó en otro lugar (ubicación por defecto):
+source $(poetry env info --path)/bin/activate  # En macOS/Linux
+
+# Opción 2: Usar 'poetry run' sin activar (más moderno)
+poetry run pytest
+poetry run iris-train
+
 # Opción 3: Instalar el plugin shell para usar 'poetry shell'
 poetry self add poetry-plugin-shell
-# Luego usar: poetry shell
+poetry shell
 ```
+
+**Resumen importante**:
+- Poetry debe estar instalado **globalmente** (fuera de venvs) para uso normal
+- El venv donde instalaste Poetry es **temporal** y solo sirve para tener Poetry disponible
+- Poetry crea su **propio entorno virtual** para cada proyecto (separado del venv temporal)
 
 ### Instalación alternativa (pip)
 
@@ -73,7 +176,132 @@ pip install -r requirements-dev.txt
 pip install -e .
 ```
 
+### Instalar el paquete distribuible (desde archivos generados)
+
+Si has construido el paquete con `poetry build`, puedes instalar los archivos generados en la carpeta `dist/`:
+
+#### Construir el paquete
+
+```bash
+# Construir el paquete (genera archivos .whl y .tar.gz en dist/)
+poetry build
+```
+
+Esto crea dos archivos en la carpeta `dist/`:
+- `iris_ml_pipeline-0.1.0-py3-none-any.whl` (wheel - recomendado)
+- `iris-ml-pipeline-0.1.0.tar.gz` (source distribution)
+
+#### Instalar desde el archivo .whl (recomendado)
+
+```bash
+# Con pip estándar
+pip install dist/iris_ml_pipeline-0.1.0-py3-none-any.whl
+
+# O si estás usando Poetry
+poetry run pip install dist/iris_ml_pipeline-0.1.0-py3-none-any.whl
+```
+
+#### Instalar desde el archivo .tar.gz
+
+```bash
+pip install dist/iris-ml-pipeline-0.1.0.tar.gz
+```
+
+#### Instalar desde la carpeta dist/ completa
+
+```bash
+pip install dist/
+```
+
+#### Verificar la instalación
+
+```bash
+# Ver información del paquete instalado
+pip show iris-ml-pipeline
+
+# Verificar que los comandos funcionan
+iris-train --help
+iris-predict --help
+iris-api --help
+```
+
+#### Desinstalar
+
+```bash
+pip uninstall iris-ml-pipeline
+```
+
 > **Nota**: Si tienes problemas con la instalación de Poetry debido a certificados SSL, consulta [INSTALL.md](INSTALL.md) para métodos alternativos.
+
+### 🔧 Solución de Problemas Comunes
+
+#### Error: `command not found: poetry`
+
+**Problema**: Poetry no está disponible en tu PATH.
+
+**Solución**:
+
+1. **Si instalaste Poetry con el script oficial**:
+   ```bash
+   # Verifica dónde se instaló Poetry
+   ls -la ~/.local/bin/poetry
+   # o
+   ls -la ~/Library/Python/*/bin/poetry
+   
+   # Agrega al PATH (agrega esta línea a ~/.zshrc o ~/.bashrc):
+   export PATH="$HOME/.local/bin:$PATH"
+   # O para macOS si está en otro lugar:
+   export PATH="$HOME/Library/Python/3.x/bin:$PATH"
+   
+   # Recarga tu shell
+   source ~/.zshrc  # o source ~/.bashrc
+   ```
+
+2. **Si instalaste Poetry dentro de un venv (temporal)**:
+   ```bash
+   # El venv donde instalaste Poetry es solo temporal
+   # Para usar Poetry mientras tanto:
+   source venv/bin/activate  # Activa el venv donde está Poetry
+   poetry install  # Poetry creará su PROPIO entorno virtual para el proyecto
+   
+   # Una vez que Poetry esté instalado globalmente, puedes:
+   # 1. Desactivar el venv temporal: deactivate
+   # 2. Eliminarlo: rm -rf venv
+   # 3. Usar Poetry normalmente desde cualquier lugar
+   ```
+
+3. **Reinstalar Poetry correctamente (recomendado)**:
+   ```bash
+   # Opción A: Usar el script oficial (más simple)
+   curl -sSL https://install.python-poetry.org | python3 -
+   # Agrega al PATH (agrega a ~/.zshrc):
+   echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+   source ~/.zshrc
+   
+   # Opción B: Usar pipx (si pipx está disponible)
+   python3 -m pip install --user pipx
+   python3 -m pipx ensurepath
+   pipx install poetry
+   
+   # Opción C: Usar pip con --user (si 'pip' no funciona, usa 'python3 -m pip')
+   python3 -m pip install --user poetry
+   # Agrega al PATH (macOS):
+   export PATH="$HOME/Library/Python/3.13/bin:$PATH"
+   # Agrega esta línea a ~/.zshrc para que persista:
+   echo 'export PATH="$HOME/Library/Python/3.13/bin:$PATH"' >> ~/.zshrc
+   source ~/.zshrc
+   ```
+
+#### ¿Por qué necesito activar un venv para usar Poetry si Poetry crea su propio venv?
+
+**Explicación**:
+- Si instalaste Poetry **dentro de un venv**, ese venv es solo un contenedor temporal para tener Poetry disponible
+- Cuando ejecutas `poetry install`, Poetry crea su **propio entorno virtual separado** para el proyecto
+- **Dos opciones**:
+  1. **Temporal**: Mantener el venv donde está Poetry activo solo para ejecutar comandos Poetry, pero trabajar en el venv del proyecto que Poetry creó
+  2. **Permanente**: Instalar Poetry globalmente para no necesitar ningún venv temporal
+
+**Recomendación**: Instala Poetry globalmente para evitar confusión.
 
 ## 📊 Dataset
 
@@ -207,7 +435,42 @@ poetry run pytest tests/functional/
 poetry run pytest --cov=src/iris_ml --cov-report=html
 ```
 
-El reporte de cobertura estará en `htmlcov/index.html`
+### Ver el reporte de cobertura
+
+El reporte de cobertura se genera en formato HTML y puedes verlo de las siguientes formas:
+
+#### 1. Localmente (después de ejecutar los tests)
+
+Después de ejecutar los tests con cobertura, el reporte se genera en la carpeta `htmlcov/`:
+
+```bash
+# Generar el reporte
+poetry run pytest --cov=src/iris_ml --cov-report=html
+
+# Abrir el reporte en tu navegador
+# En macOS:
+open htmlcov/index.html
+
+# En Linux:
+xdg-open htmlcov/index.html
+
+# En Windows:
+start htmlcov/index.html
+```
+
+El reporte HTML muestra:
+- Porcentaje de cobertura por archivo
+- Líneas cubiertas y no cubiertas (resaltadas en color)
+- Resumen general del proyecto
+
+#### 2. En GitHub Actions (después de que el workflow se ejecute)
+
+1. Ve a la pestaña **"Actions"** en tu repositorio de GitHub
+2. Abre la ejecución del workflow que quieras revisar
+3. Al final de la página, en la sección **"Artifacts"**, verás **"coverage-html"**
+4. Descarga el artifact y abre `htmlcov/index.html` en tu navegador
+
+> **Nota**: Los artifacts se mantienen disponibles por 30 días después de la ejecución del workflow.
 
 ## 🔍 Linting y Code Quality
 

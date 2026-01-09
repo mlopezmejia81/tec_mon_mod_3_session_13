@@ -11,7 +11,7 @@ from sklearn.preprocessing import StandardScaler
 
 from iris_ml.config import settings
 from iris_ml.config.settings import get_model_path
-from iris_ml.preprocessing import ColumnSelector, SpeciesEncoder
+from iris_ml.preprocessing import SpeciesEncoder
 
 
 class IrisPipeline:
@@ -43,7 +43,11 @@ class IrisPipeline:
 
         self.species_encoder: SpeciesEncoder = SpeciesEncoder()
 
-        # Crear el pipeline
+        # Pipeline de scikit-learn: encadena transformadores y un estimador final
+        # Recibe: lista de tuplas (nombre, transformador/estimador)
+        # Retorna: objeto Pipeline que procesa datos en secuencia
+        # Uso: pipeline.fit(X, y) para entrenar, pipeline.predict(X) para predecir
+        # En este caso: StandardScaler normaliza → RandomForestClassifier clasifica
         self.pipeline: Pipeline = Pipeline(
             [
                 ("scaler", StandardScaler()),
@@ -68,10 +72,10 @@ class IrisPipeline:
         Returns:
             self: Instancia del pipeline entrenado.
         """
-        # Codificar las especies
+        # Codificar las especies (convierte strings a números)
         y_encoded = self.species_encoder.transform(y)
 
-        # Entrenar el pipeline
+        # Entrenar el pipeline: StandardScaler ajusta y normaliza → RandomForest entrena
         self.pipeline.fit(X, y_encoded)
 
         return self
@@ -85,10 +89,10 @@ class IrisPipeline:
         Returns:
             Lista de nombres de especies predichas.
         """
-        # Realizar predicción
+        # Predecir: StandardScaler normaliza → RandomForest predice
         y_pred_encoded = self.pipeline.predict(X)
 
-        # Decodificar las predicciones
+        # Decodificar predicciones (números → nombres de especies)
         y_pred = self.species_encoder.inverse_transform(y_pred_encoded)
 
         return y_pred

@@ -99,10 +99,10 @@ jobs:
         run: poetry run pytest tests/functional/ -v
       
       # Generar reporte de cobertura de código (qué porcentaje del código está cubierto por tests)
-      # Genera reportes en formato XML (para CI) y HTML (para visualización)
+      # Genera reporte en formato HTML para visualización
       # El reporte HTML se puede ver localmente en htmlcov/index.html o descargarlo desde GitHub Actions
       - name: Generate coverage report
-        run: poetry run pytest --cov=src/iris_ml --cov-report=xml --cov-report=html
+        run: poetry run pytest --cov=src/iris_ml --cov-report=html
       
       # Subir reporte HTML de cobertura como artifact (se puede descargar desde la interfaz de GitHub Actions)
       # Para verlo: ve a la ejecución del workflow → Artifacts → descarga "coverage-html"
@@ -112,16 +112,6 @@ jobs:
           name: coverage-html
           path: htmlcov/
           retention-days: 30
-      
-      # Subir reporte de cobertura a Codecov (servicio externo para tracking de cobertura)
-      # continue-on-error: true porque es opcional y no debe bloquear el CI
-      - name: Upload coverage to Codecov (optional)
-        uses: codecov/codecov-action@v4
-        with:
-          file: ./coverage.xml
-          flags: unittests
-          name: codecov-umbrella
-        continue-on-error: true
 
   # JOB 3: CONSTRUCCIÓN DEL PAQUETE
   # Crea el paquete distribuible (wheel y sdist) solo si lint y test pasan exitosamente
@@ -147,12 +137,15 @@ jobs:
           version: latest
       
       # Construir el paquete Python (genera archivos .whl y .tar.gz en la carpeta dist/)
+      # La carpeta dist/ se crea automáticamente en la raíz del proyecto cuando ejecutas poetry build
       # Esto crea los archivos que se pueden distribuir e instalar con pip
       - name: Build package
         run: poetry build
       
       # Subir los archivos construidos como artefactos de GitHub Actions
+      # La carpeta dist/ contiene los archivos .whl y .tar.gz generados
       # Estos artefactos se pueden descargar desde la interfaz de GitHub después del workflow
+      # Para verlos: ve a la ejecución del workflow → Artifacts → descarga "dist"
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
