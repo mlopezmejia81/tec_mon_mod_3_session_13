@@ -86,31 +86,32 @@ Este proyecto incluye:
 **⚠️ Importante**: Poetry debe instalarse **fuera** de un entorno virtual para que esté disponible globalmente.
 
 ```bash
-# Opción 1: Instalación oficial (recomendado)
+# Opción 1: Instalación oficial (si NO tienes problemas de SSL)
 # Esto instala Poetry en ~/.local/bin (Linux/macOS) o %APPDATA%\Python\Scripts (Windows)
 curl -sSL https://install.python-poetry.org | python3 -
 
 # Después de instalar, agrega Poetry al PATH (macOS/Linux)
 # Agrega esta línea a tu ~/.zshrc o ~/.bashrc:
 export PATH="$HOME/.local/bin:$PATH"
-
-# O en macOS, si Poetry se instaló en otro lugar:
-export PATH="$HOME/Library/Python/3.x/bin:$PATH"
-
-# Luego recarga tu shell:
 source ~/.zshrc  # o source ~/.bashrc
 
-# Opción 2: Usar pipx (si lo tienes instalado - recomendado)
-pipx install poetry
-
-# Opción 3: Si tienes problemas con SSL, instalar con pip (NO dentro de un venv)
-# Solo si las opciones anteriores no funcionan:
-# Si 'pip' no está disponible, usa 'python3 -m pip':
+# Opción 2: Si tienes problemas de SSL (CERTIFICATE_VERIFY_FAILED) - RECOMENDADO EN macOS
+# Usa pip directamente (funciona incluso con problemas de certificados):
 python3 -m pip install --user poetry
 
-# Después de instalar con --user, agrega al PATH:
-# macOS/Linux: export PATH="$HOME/Library/Python/3.x/bin:$PATH" (agrega a ~/.zshrc)
-# Luego: source ~/.zshrc
+# Después de instalar, agrega Poetry al PATH (para Python 3.13 en macOS):
+# Reemplaza 3.13 con tu versión de Python si es diferente:
+export PATH="$HOME/Library/Python/3.13/bin:$PATH"
+
+# Agrega esta línea a tu ~/.zshrc para que persista:
+echo 'export PATH="$HOME/Library/Python/3.13/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+
+# Verifica la instalación:
+poetry --version
+
+# Opción 3: Usar pipx (si lo tienes instalado - requiere certificados SSL funcionando)
+pipx install poetry
 ```
 
 **Si ya instalaste Poetry dentro de un venv** (temporal para instalarlo):
@@ -120,6 +121,32 @@ python3 -m pip install --user poetry
 # Para usar Poetry mientras tanto:
 source venv/bin/activate  # Activa el venv donde está Poetry
 poetry install  # Poetry creará su PROPIO entorno virtual para el proyecto
+```
+
+**⚠️ Problema común: Poetry funciona en terminal normal pero no en Cursor/VS Code**
+
+**Problema**: Cursor y VS Code ejecutan shells no interactivos que no cargan `.zshrc` automáticamente.
+
+**Solución**:
+```bash
+# Agregar el PATH a .zprofile (se carga siempre, incluso en shells no interactivos)
+echo 'export PATH="$HOME/Library/Python/3.13/bin:$PATH"' >> ~/.zprofile
+
+# También puedes agregarlo a .zshenv para máxima compatibilidad
+echo 'export PATH="$HOME/Library/Python/3.13/bin:$PATH"' >> ~/.zshenv
+
+# Cierra y reabre Cursor/VS Code para que los cambios surtan efecto
+# O en una terminal nueva dentro de Cursor, ejecuta:
+source ~/.zprofile
+```
+
+**Verificación rápida en Cursor**:
+```bash
+# En la terminal de Cursor, ejecuta temporalmente:
+export PATH="$HOME/Library/Python/3.13/bin:$PATH"
+poetry --version  # Debería funcionar ahora
+
+# Para que persista, asegúrate de tenerlo en .zprofile
 ```
 
 #### Paso 2: Instalar dependencias del proyecto
@@ -235,6 +262,35 @@ pip uninstall iris-ml-pipeline
 
 ### 🔧 Solución de Problemas Comunes
 
+#### Error: `[SSL: CERTIFICATE_VERIFY_FAILED]` al instalar Poetry
+
+**Problema**: Los certificados SSL de Python no están configurados correctamente en macOS.
+
+**Solución rápida** (recomendada):
+```bash
+# Instalar Poetry con pip directamente (evita el problema de SSL):
+python3 -m pip install --user poetry
+
+# Agregar al PATH (ajusta la versión de Python si es diferente):
+export PATH="$HOME/Library/Python/3.13/bin:$PATH"
+echo 'export PATH="$HOME/Library/Python/3.13/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+
+# Verificar:
+poetry --version
+```
+
+**Solución alternativa** (si quieres arreglar los certificados SSL):
+```bash
+# Instalar/actualizar certificados de Python en macOS
+# Ejecuta el script de instalación de certificados (ajusta la ruta según tu versión):
+/Applications/Python\ 3.13/Install\ Certificates.command
+
+# O descarga e instala Python desde python.org para obtener certificados actualizados
+# Luego intenta de nuevo:
+curl -sSL https://install.python-poetry.org | python3 -
+```
+
 #### Error: `command not found: poetry`
 
 **Problema**: Poetry no está disponible en tu PATH.
@@ -272,24 +328,23 @@ pip uninstall iris-ml-pipeline
 
 3. **Reinstalar Poetry correctamente (recomendado)**:
    ```bash
-   # Opción A: Usar el script oficial (más simple)
+   # Opción A: Usar pip directamente (RECOMENDADO si tienes problemas de SSL)
+   python3 -m pip install --user poetry
+   # Agrega al PATH (ajusta la versión de Python si es diferente):
+   export PATH="$HOME/Library/Python/3.13/bin:$PATH"
+   echo 'export PATH="$HOME/Library/Python/3.13/bin:$PATH"' >> ~/.zshrc
+   source ~/.zshrc
+   poetry --version
+   
+   # Opción B: Usar el script oficial (solo si NO tienes problemas de SSL)
    curl -sSL https://install.python-poetry.org | python3 -
-   # Agrega al PATH (agrega a ~/.zshrc):
    echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
    source ~/.zshrc
    
-   # Opción B: Usar pipx (si pipx está disponible)
+   # Opción C: Usar pipx (si pipx está disponible y SSL funciona)
    python3 -m pip install --user pipx
    python3 -m pipx ensurepath
    pipx install poetry
-   
-   # Opción C: Usar pip con --user (si 'pip' no funciona, usa 'python3 -m pip')
-   python3 -m pip install --user poetry
-   # Agrega al PATH (macOS):
-   export PATH="$HOME/Library/Python/3.13/bin:$PATH"
-   # Agrega esta línea a ~/.zshrc para que persista:
-   echo 'export PATH="$HOME/Library/Python/3.13/bin:$PATH"' >> ~/.zshrc
-   source ~/.zshrc
    ```
 
 #### ¿Por qué necesito activar un venv para usar Poetry si Poetry crea su propio venv?
