@@ -72,46 +72,6 @@ Realiza una predicción individual de especie de Iris.
 - `503`: Modelo no disponible
 - `500`: Error interno del servidor
 
-### POST `/predict/batch`
-
-Realiza predicciones en lote.
-
-**Request:**
-```json
-[
-  {
-    "features": {
-      "sepal_length_cm": 5.1,
-      "sepal_width_cm": 3.5,
-      "petal_length_cm": 1.4,
-      "petal_width_cm": 0.2
-    }
-  },
-  {
-    "features": {
-      "sepal_length_cm": 6.2,
-      "sepal_width_cm": 2.8,
-      "petal_length_cm": 4.5,
-      "petal_width_cm": 1.5
-    }
-  }
-]
-```
-
-**Response:**
-```json
-[
-  {
-    "predicted_species": "Iris-setosa",
-    "probabilities": [...]
-  },
-  {
-    "predicted_species": "Iris-versicolor",
-    "probabilities": [...]
-  }
-]
-```
-
 ## Validaciones
 
 ### IrisFeatures

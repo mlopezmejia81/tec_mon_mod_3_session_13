@@ -59,7 +59,7 @@ Este proyecto incluye:
 
 - **REST API**: API REST con FastAPI
   - Archivo principal: `src/iris_ml/api/main.py`
-  - Endpoints: `/`, `/health`, `/predict`, `/predict/batch`
+  - Endpoints: `/`, `/health`, `/predict`
   - Documentación automática: Swagger UI (`/docs`) y ReDoc (`/redoc`)
 
 - **Pydantic**: Validación de datos

@@ -93,38 +93,6 @@ class TestAPIEndpoints:
         assert "probabilities" in data
         assert len(data["probabilities"]) == 3
 
-    def test_predict_endpoint_batch(self, client) -> None:
-        """Prueba el endpoint de predicción en lote."""
-        request_data = [
-            {
-                "features": {
-                    "sepal_length_cm": 5.1,
-                    "sepal_width_cm": 3.5,
-                    "petal_length_cm": 1.4,
-                    "petal_width_cm": 0.2,
-                }
-            },
-            {
-                "features": {
-                    "sepal_length_cm": 6.2,
-                    "sepal_width_cm": 2.8,
-                    "petal_length_cm": 4.5,
-                    "petal_width_cm": 1.5,
-                }
-            },
-        ]
-
-        response = client.post("/predict/batch", json=request_data)
-        assert response.status_code == 200
-
-        data = response.json()
-        assert isinstance(data, list)
-        assert len(data) == 2
-
-        for prediction in data:
-            assert "predicted_species" in prediction
-            assert "probabilities" in prediction
-
     def test_predict_endpoint_validation_error(self, client) -> None:
         """Prueba validación de datos incorrectos."""
         request_data = {
